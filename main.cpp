@@ -3,75 +3,67 @@
 #include <iostream>
 #include <algorithm>
 
-bool getBit(int* arr, int bit) {
-	int pos = bit / 32;
-	return (arr[pos] >> (bit % 32)) & 1;
-}
+std::pair<int, std::vector<int>>
+knapsack(std::vector<std::pair<int, int>> objects, int maxWeight) {
+  std::vector<std::pair<int, std::vector<int>>> currentRow;
+  std::vector<std::pair<int, std::vector<int>>> lastRow;
 
-void setBit(int* arr, bool val, int bit) {
-	int pos = bit / 32;
-	arr[pos] = arr[pos] | ((val ? 1 : 0) << (bit % 32));
-}
+  currentRow.resize(maxWeight + 1);
+  lastRow.resize(maxWeight + 1);
 
-void reset(int** arr, int x, int y) {
-	for (int i = 0; i < x; i++) {
-		for (int j = 0; j < y; j++) {
-			arr[i][j] = 0;
-		}
-	}
-}
+  std::pair<int, std::vector<int>> empty(0, std::vector<int>());
 
-int knapsack(int* values, int* weights, int numItems, int maxWeight)
-{
-	std::vector<std::pair<int, std::vector<int>>> currentRow;
-	std::vector<std::pair<int, std::vector<int>>> lastRow;
+  for (int i = 0; i < maxWeight; i++) {
+    currentRow[i] = empty;
+    lastRow[i] = empty;
+  }
 
-	currentRow.resize(maxWeight);
-	lastRow.resize(maxWeight);
+  for (int i = 0; i < objects.size(); i++) {
+    for (int j = 1; j <= maxWeight; j++) {
+      auto top = lastRow[j];
+      auto entry = currentRow[j];
 
-	std::pair<int, std::vector<int>> empty(0, std::vector<int>());
+      if (j >= objects[i].first) {
+        if (j >= objects[i].first) {
+          entry.second = currentRow[j - objects[i].first].second;
+          entry.first = currentRow[j - objects[i].first].first;
+          if (std::find(entry.second.begin(), entry.second.end(), i) ==
+              entry.second.end()) {
+            entry.first += objects[i].second;
+            entry.second.push_back(i);
+          }
+        }
+      }
 
-	for (int i = 0; i < maxWeight; i++) {
-		currentRow[i] = empty;
-		lastRow[i] = empty;
-	}
+      if (top.first >= entry.first) {
+        entry.first = top.first;
+        entry.second.clear();
+        entry.second = top.second;
+      }
 
-	for (int i = 0; i < numItems; i++) {
-		for (int j = 1; j <= maxWeight; j++) {
-			auto top = lastRow[j];
-			auto& entry = currentRow[j];
+      currentRow[j] = entry;
 
-			if (j >= weights[i]) {
-				if (j > weights[i] && std::find(currentRow[j - weights[i] - 1].second.begin(),
-				                     currentRow[j - weights[i] - 1].second.end(), 
-				                     i)
-				                     == currentRow[j - weights[i] - 1].second.end()) {
-					entry.first = currentRow[j - weights[i] - 1].first + values[i];
-					entry.second = currentRow[j - weights[i] - 1].second;
-					entry.second.push_back(i);
-				}
-				else if (j == weights[i]) {
-					entry.first = values[i];
-					entry.second.push_back(i);
-				}
-			}
+      std::cout << currentRow[j].first << ":" << objects[0].second;
+      for (int k = 1; k < entry.second.size(); k++) {
+        std::cout << "," << objects[currentRow[j].second[k]].first;
+      }
+      std::cout << '\t';
+    }
 
-			if (top.first > entry.first) {
-				entry.first = top.first;
-				entry.second = top.second;
-			}
-		}
-		lastRow = currentRow;
-		for (int i = 0; i < maxWeight; i++) {
-			currentRow[i] = empty;
-		}
-	}
+    lastRow = currentRow;
+    for (int i = 0; i < maxWeight; i++) {
+      currentRow[i] = empty;
+    }
 
-	return currentRow[maxWeight - 1].first;
+    std::cout << std::endl;
+  }
+
+  return currentRow[maxWeight];
 }
 
 int main() {
-	int v[] = {4, 5, 8};
-	int w[] = {3, 6, 9};
-	std::cout << knapsack(&v[0], &w[0], 3, 9) << std::endl;
+  std::vector<std::pair<int, int>> v = {
+      std::make_pair(3, 5), std::make_pair(7, 8), std::make_pair(1, 2)};
+
+  auto ans = knapsack(v, 9);
 }
