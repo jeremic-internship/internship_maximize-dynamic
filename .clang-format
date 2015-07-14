@@ -1,0 +1,9 @@
+ColumnLimit: 150
+Cpp11BracedListStyle: true
+BreakBeforeBraces: Allman
+PointerBindsToType: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+Standard: Cpp11
+TabWidth: 4
+UseTab: ForIndentation
