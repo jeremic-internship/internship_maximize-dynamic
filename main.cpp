@@ -32,22 +32,10 @@ std::tuple<int, int, std::vector<int>> knapsack(std::vector<std::pair<int, int>>
 
 	  if (j >= objects[i].first)
 	  {
-		if (j >= objects[i].first)
-		{
-		  entry.second = currentRow[j - objects[i].first].second;
-		  entry.first = currentRow[j - objects[i].first].first;
-		  if (std::find(entry.second.begin(), entry.second.end(), i) == entry.second.end())
-		  {
-			entry.first += objects[i].second;
-			entry.second.push_back(i);
-		  }
-		}
-	  }
-
-	  if (currentRow[j - 1].first > entry.first)
-	  {
-		entry.first = currentRow[j - 1].first;
-		entry.second = currentRow[j - 1].second;
+	  	entry.second = lastRow[j - objects[i].first].second;
+	  	entry.first = lastRow[j - objects[i].first].first;
+	  	entry.first += objects[i].second;
+	  	entry.second.push_back(i);
 	  }
 
 	  if (top.first >= entry.first)
@@ -58,6 +46,7 @@ std::tuple<int, int, std::vector<int>> knapsack(std::vector<std::pair<int, int>>
 	  }
 
 	  currentRow[j] = entry;
+	  std::cout << entry.first << '\t';
 	}
 
 	lastRow = currentRow;
@@ -65,6 +54,8 @@ std::tuple<int, int, std::vector<int>> knapsack(std::vector<std::pair<int, int>>
 	{
 	  currentRow[i] = empty;
 	}
+
+	std::cout << std::endl;
   }
 
   int totalWeight;
@@ -99,8 +90,11 @@ void writeResult(std::string filename, std::vector<int> indices, std::vector<std
   std::stringstream weights;
   std::stringstream values;
 
+  int totalW = 0;
+
   for (int i : indices)
   {
+  	totalW += objects[i].first;
 	weights << objects[i].first;
 	values << objects[i].second;
 
@@ -117,11 +111,11 @@ void writeResult(std::string filename, std::vector<int> indices, std::vector<std
 	}
   }
 
-  weights << " -> " << totalWeight;
+  weights << " -> " << totalW;
   values << " -> " << totalValue;
 
   std::ofstream file(filename);
-  file << maxWeight << '\n' << weights.str() << '\n' << values.str();
+  file << maxWeight << '\n' << weights.str() << '\n' << values.str() << '\n';
 }
 
 int main()
